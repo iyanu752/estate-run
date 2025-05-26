@@ -1,48 +1,106 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { User } from './schemas/user.schema';
+import { User } from '../users/user.schema';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpDto } from './dto/signup.dto';
-import { LogInDto } from './dto/login.dto';
+import { LogInDto, SignUpDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
-    private jwtSrv: JwtService,
+    private jwtService: JwtService,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
+  async signUp(signUpDto: SignUpDto): Promise<{ token: string; user: any }> {
     const { firstName, lastName, email, password, userType } = signUpDto;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if user already exists
+    const existingUser = await this.userModel.findOne({ email });
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
 
-    const user = await this.userModel.create({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
-      userType,
-    });
-    const token = this.jwtSrv.sign({ id: user._id });
-    return { token };
+    // Hash password with higher salt rounds for better security
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    try {
+      const user = await this.userModel.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        userType,
+      });
+
+      // Generate JWT token
+      const payload = {
+        id: user._id,
+        email: user.email,
+        userType: user.userType,
+      };
+      const token = this.jwtService.sign(payload);
+
+      // Return user without password
+      const userResponse = {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        userType: user.userType,
+      };
+
+      return { token, user: userResponse };
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException('User with this email already exists');
+      }
+      throw error;
+    }
   }
 
-  async logIn(logInDto: LogInDto): Promise<{ token: string }> {
+  async logIn(logInDto: LogInDto): Promise<{ token: string; user: any }> {
     const { email, password } = logInDto;
-    const user = await this.userModel.findOne({ email });
+
+    if (!email || !password) {
+      throw new BadRequestException('Email and password are required');
+    }
+
+    const user = await this.userModel.findOne({ email }).select('+password');
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new NotFoundException('No user found with this email');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
     }
-    const token = this.jwtSrv.sign({ id: user._id });
-    return { token };
+
+    // Generate JWT token
+    const payload = {
+      id: user._id,
+      email: user.email,
+      userType: user.userType,
+    };
+    const token = this.jwtService.sign(payload);
+
+    // Return user without password
+    const userResponse = {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      userType: user.userType,
+    };
+
+    return { token, user: userResponse };
   }
 }
