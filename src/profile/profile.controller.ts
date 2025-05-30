@@ -18,13 +18,14 @@ export class ProfileController {
   async updateProfile(
     @Param('id') userId: string,
     @Body() updateProfileDto: UpdateProfileDto,
-  ): Promise<{ user: any }> {
+  ): Promise<{ user: any; message: string }> {
     const updatedProfile = await this.profileService.updateProfile(
       userId,
       updateProfileDto,
     );
     return {
       user: updatedProfile.user,
+      message: 'Profile updated successfully',
     };
   }
 

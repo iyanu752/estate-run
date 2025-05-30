@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { DATABASE_URI } from './common/config';
 import { ProfileModule } from './profile/profile.module';
+import { ProductsModule } from './products/products.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { ProfileModule } from './profile/profile.module';
     UsersModule,
     AuthModule,
     ProfileModule,
+    ProductsModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
