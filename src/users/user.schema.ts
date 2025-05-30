@@ -25,8 +25,23 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ required: true, enum: ['user', 'business_owner'] })
+  @Prop({ required: true, enum: ['user', 'business_owner', 'admin'] })
   userType: string;
+
+  @Prop()
+  phone: number;
+
+  @Prop()
+  address: string;
+
+  @Prop()
+  profileImage: string;
+
+  @Prop()
+  estate: string;
+
+  @Prop({ type: Date, default: Date.now })
+  createdAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

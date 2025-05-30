@@ -1,14 +1,12 @@
 import {
   IsEmail,
   IsNotEmpty,
-  IsString,
-  MinLength,
-  IsEnum,
   IsNumber,
+  IsString,
   IsOptional,
 } from 'class-validator';
 
-export class SignUpDto {
+export class UpdateProfileDto {
   @IsNotEmpty({ message: 'First name is required' })
   @IsString({ message: 'First name must be a string' })
   firstName: string;
@@ -21,11 +19,6 @@ export class SignUpDto {
   @IsEmail({}, { message: 'Please enter a valid email' })
   email: string;
 
-  @IsNotEmpty({ message: 'Password is required' })
-  @IsString({ message: 'Password must be a string' })
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  password: string;
-
   @IsNotEmpty({ message: 'Phone number is required' })
   @IsNumber({}, { message: 'Phone number must be a number' })
   phone: number;
@@ -35,22 +28,10 @@ export class SignUpDto {
   adress: string;
 
   @IsOptional()
+  @IsString({ message: 'Profile image must be a string' })
+  profileImage?: string;
+
+  @IsOptional()
   @IsString({ message: 'Estate must be a string' })
   estate?: string;
-
-  @IsNotEmpty({ message: 'User type is required' })
-  @IsEnum(['admin', 'user', 'business_owner'], {
-    message: 'User type must be admin, user, or manager',
-  })
-  userType: string;
-}
-
-export class LogInDto {
-  @IsNotEmpty({ message: 'Email is required' })
-  @IsEmail({}, { message: 'Please enter a valid email' })
-  email: string;
-
-  @IsNotEmpty({ message: 'Password is required' })
-  @IsString({ message: 'Password must be a string' })
-  password: string;
 }

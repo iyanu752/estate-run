@@ -60,6 +60,7 @@ export class AuthService {
 
       return { token, user: userResponse };
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000) {
         throw new ConflictException('User with this email already exists');
       }
