@@ -34,7 +34,7 @@ export class ProfileService {
   async updateProfile(
     userId: string,
     updateProfileDto: UpdateProfileDto,
-  ): Promise<{ user: User }> {
+  ): Promise<{ user: User; message: string }> {
     try {
       const updatedProfile = await this.userModel.findByIdAndUpdate(
         userId,
@@ -50,7 +50,7 @@ export class ProfileService {
       if (!updatedProfile) {
         throw new InternalServerErrorException('Failed to update profile');
       }
-      return { user: updatedProfile };
+      return { user: updatedProfile, message: 'Profile Updated' };
     } catch (error) {
       throw new InternalServerErrorException('Failed to update profile', error);
     }

@@ -7,10 +7,7 @@ export class CartController {
 
   @Get('/:id')
   async getCart(@Param('id') userId: string): Promise<{ cart: any }> {
-    const cart = await this.cartService.getCartByUserId(userId);
-    return {
-      cart: cart,
-    };
+    return await this.cartService.getCartByUserId(userId);
   }
 
   @Post(':id/:productId/:quantity')
@@ -18,11 +15,8 @@ export class CartController {
     @Param('id') userId: string,
     @Param('productId') productId: string,
     @Param('quantity') quantity: number,
-  ): Promise<{ cart: any }> {
-    const cart = await this.cartService.addToCart(userId, productId, quantity);
-    return {
-      cart: cart,
-    };
+  ): Promise<{ cart: any; message: string }> {
+    return await this.cartService.addToCart(userId, productId, quantity);
   }
 
   @Put(':id/:productId/:quantity')
@@ -30,49 +24,30 @@ export class CartController {
     @Param('id') userId: string,
     @Param('productId') productId: string,
     @Param('quantity') quantity: number,
-  ): Promise<{ cart: any }> {
-    const cart = await this.cartService.updateCartItem(
-      userId,
-      productId,
-      quantity,
-    );
-    return {
-      cart: cart,
-    };
+  ): Promise<{ cart: any; message: string }> {
+    return await this.cartService.updateCartItem(userId, productId, quantity);
   }
 
   @Delete(':id/:productId')
   async removeFromCart(
     @Param('id') userId: string,
     @Param('productId') productId: string,
-  ): Promise<{ cart: any }> {
-    const cart = await this.cartService.removeFromCart(userId, productId);
-    return {
-      cart: cart,
-    };
+  ): Promise<{ cart: any; message: string }> {
+    return await this.cartService.removeFromCart(userId, productId);
   }
 
   @Delete(':id')
   async clearCart(@Param('id') userId: string): Promise<{ message: any }> {
-    await this.cartService.clearCart(userId);
-    return {
-      message: 'Cart cleared successfully',
-    };
+    return await this.cartService.clearCart(userId);
   }
 
   @Get('/cardCount/:id')
   async getCartCount(@Param('id') userId: string): Promise<{ count: number }> {
-    const cart = await this.cartService.getCartCount(userId);
-    return {
-      count: cart,
-    };
+    return await this.cartService.getCartCount(userId);
   }
 
   @Get('/cartTotal/:id')
   async getCartTotal(@Param('id') userId: string): Promise<{ total: number }> {
-    const total = await this.cartService.getCartTotal(userId);
-    return {
-      total: total,
-    };
+    return await this.cartService.getCartTotal(userId);
   }
 }

@@ -15,16 +15,16 @@ export class CartService {
     private cartModel: Model<Cart>,
   ) {}
 
-  async getCartByUserId(userId: string): Promise<Cart> {
+  async getCartByUserId(userId: string): Promise<{ cart: any }> {
     try {
-      const cart = await this.cartModel
+      const cartItem = await this.cartModel
         .findOne({ userId })
         .populate('products.productId', 'name price image')
         .exec();
-      if (!cart) {
+      if (!cartItem) {
         throw new NotFoundException(' Cart not found for this user ');
       }
-      return cart;
+      return { cart: cartItem };
     } catch (error: any) {
       throw new InternalServerErrorException('Failed to retrieve cart', error);
     }
@@ -34,27 +34,30 @@ export class CartService {
     userId: string,
     productId: string,
     quantity: number,
-  ): Promise<Cart> {
+  ): Promise<{ cart: Cart; message: string }> {
     try {
-      let cart = await this.cartModel.findOne({ userId });
-      if (!cart) {
-        cart = new this.cartModel({ userId, items: [] });
+      let cartItem = await this.cartModel.findOne({ userId });
+      if (!cartItem) {
+        cartItem = new this.cartModel({ userId, items: [] });
       }
-      const existingProductIndex = cart.items.findIndex(
+
+      const existingProductIndex = cartItem.items.findIndex(
         (p) => p.productId.toString() === productId,
       );
+
       if (existingProductIndex > -1) {
-        cart.items[existingProductIndex].quantity += quantity;
+        cartItem.items[existingProductIndex].quantity += quantity;
       } else {
-        cart.items.push({
+        cartItem.items.push({
           productId: new Types.ObjectId(productId),
           quantity,
         });
       }
-      cart = await cart.save();
-      return cart;
-    } catch (error: any) {
-      throw new InternalServerErrorException('Failed to add to cart', error);
+
+      cartItem = await cartItem.save();
+      return { cart: cartItem, message: 'Product added to cart successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to add to cart: ', error);
     }
   }
 
@@ -62,28 +65,28 @@ export class CartService {
     userId: string,
     productId: string,
     quantity: number,
-  ): Promise<Cart> {
+  ): Promise<{ cart: Cart; message: string }> {
     try {
-      const cart = await this.cartModel.findOne({
+      const cartItem = await this.cartModel.findOne({
         userId: new Types.ObjectId(userId),
         'items.productId': new Types.ObjectId(productId),
       });
-      if (!cart) {
+      if (!cartItem) {
         throw new NotFoundException('Cart not found for this user');
       }
-      const itemIndex = cart.items.findIndex(
+      const itemIndex = cartItem.items.findIndex(
         (item) => item.productId.toString() === productId,
       );
       if (itemIndex === -1) {
         throw new NotFoundException('Item not found in cart');
       }
       if (quantity <= 0) {
-        cart.items.splice(itemIndex, 1);
+        cartItem.items.splice(itemIndex, 1);
       } else {
-        cart.items[itemIndex].quantity = quantity;
+        cartItem.items[itemIndex].quantity = quantity;
       }
-      const updatedCart = await cart.save();
-      return updatedCart;
+      const updatedCart = await cartItem.save();
+      return { cart: updatedCart, message: 'Cart item updated successfully' };
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to update cart item',
@@ -92,24 +95,30 @@ export class CartService {
     }
   }
 
-  async removeFromCart(userId: string, productId: string): Promise<Cart> {
+  async removeFromCart(
+    userId: string,
+    productId: string,
+  ): Promise<{ cart: Cart; message: string }> {
     try {
-      const cart = await this.cartModel.findOne({
+      const cartItem = await this.cartModel.findOne({
         userId: new Types.ObjectId(userId),
         'items.productId': new Types.ObjectId(productId),
       });
-      if (!cart) {
+      if (!cartItem) {
         throw new NotFoundException('Cart not found for this user');
       }
-      const itemIndex = cart.items.findIndex(
+      const itemIndex = cartItem.items.findIndex(
         (item) => item.productId.toString() === productId,
       );
       if (itemIndex === -1) {
         throw new NotFoundException('Item not found in cart');
       }
-      cart.items.splice(itemIndex, 1);
-      const updatedCart = await cart.save();
-      return updatedCart;
+      cartItem.items.splice(itemIndex, 1);
+      const updatedCart = await cartItem.save();
+      return {
+        cart: updatedCart,
+        message: 'Item removed from cart successfully',
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         'Failed to remove item from cart',
@@ -118,31 +127,33 @@ export class CartService {
     }
   }
 
-  async clearCart(userId: string): Promise<Cart> {
+  async clearCart(userId: string): Promise<{ cart: Cart; message: string }> {
     try {
-      const cart = await this.cartModel.findOneAndDelete({ userId });
-      if (!cart) {
+      const cartItem = await this.cartModel.findOneAndDelete({ userId });
+      if (!cartItem) {
         throw new NotFoundException('Cart not found for this user');
       }
-      return cart;
+      return { cart: cartItem, message: 'Cart cleared successfully' };
     } catch (error) {
       throw new InternalServerErrorException('Failed to clear cart', error);
     }
   }
 
-  async getCartCount(userId: string): Promise<number> {
+  async getCartCount(userId: string): Promise<{ count: number }> {
     try {
-      const cart = await this.cartModel.findOne({ userId });
-      if (!cart) {
-        return 0;
+      const cartItem = await this.cartModel.findOne({ userId });
+      if (!cartItem) {
+        return { count: 0 };
       }
-      return cart.items.reduce((count, item) => count + item.quantity, 0);
+      return {
+        count: cartItem.items.reduce((count, item) => count + item.quantity, 0),
+      };
     } catch (error) {
       throw new InternalServerErrorException('Failed to get cart count', error);
     }
   }
 
-  async getCartTotal(userId: string): Promise<number> {
+  async getCartTotal(userId: string): Promise<{ total: number }> {
     try {
       const cart = await this.cartModel
         .findOne({ userId })
@@ -160,7 +171,7 @@ export class CartService {
         return sum + product.price * item.quantity;
       }, 0);
 
-      return total;
+      return { total };
     } catch (error) {
       throw new InternalServerErrorException('Failed to get cart total', error);
     }

@@ -7,18 +7,14 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/signup')
-  async signUp(@Body() signUpDto: SignUpDto): Promise<{ message: string }> {
-    await this.authService.signUp(signUpDto);
-    return {
-      message: 'User registered successfully. Please log in to contunue.',
-    };
+  async signUp(@Body() signUpDto: SignUpDto): Promise<{ user: string }> {
+    return await this.authService.signUp(signUpDto);
   }
 
   @Post('/login')
-  async login(@Body() logInDto: LogInDto): Promise<{ message: string }> {
-    await this.authService.logIn(logInDto);
-    return {
-      message: 'Login successful. Welcome back!',
-    };
+  async login(
+    @Body() logInDto: LogInDto,
+  ): Promise<{ token: string; user: any }> {
+    return await this.authService.logIn(logInDto);
   }
 }

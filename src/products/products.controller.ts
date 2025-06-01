@@ -6,9 +6,11 @@ import {
   Delete,
   Param,
   Body,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/product.dto';
+import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -31,7 +33,7 @@ export class ProductsController {
       product: product,
     };
   }
-
+  @UseGuards(JwtAuthGuard)
   @Post('/')
   async createProduct(
     @Body() createProductDto: CreateProductDto,

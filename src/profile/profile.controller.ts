@@ -8,10 +8,7 @@ export class ProfileController {
 
   @Get('/:id')
   async getProfile(@Param('id') userId: string): Promise<{ user: any }> {
-    const profile = await this.profileService.getProfile(userId);
-    return {
-      user: profile.user,
-    };
+    return await this.profileService.getProfile(userId);
   }
 
   @Put('/:id')
@@ -19,19 +16,11 @@ export class ProfileController {
     @Param('id') userId: string,
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<{ user: any; message: string }> {
-    const updatedProfile = await this.profileService.updateProfile(
-      userId,
-      updateProfileDto,
-    );
-    return {
-      user: updatedProfile.user,
-      message: 'Profile updated successfully',
-    };
+    return await this.profileService.updateProfile(userId, updateProfileDto);
   }
 
   @Delete('/:id')
   async deleteProfile(@Param('id') userId: string): Promise<void> {
-    await this.profileService.deleteProfile(userId);
-    return;
+    return await this.profileService.deleteProfile(userId);
   }
 }
