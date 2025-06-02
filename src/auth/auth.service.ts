@@ -20,11 +20,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(signUpDto: SignUpDto): Promise<{ token: string; user: any }> {
+  async signUp(signUpDto: SignUpDto): Promise<{ user: any }> {
     const { firstName, lastName, email, password, userType } = signUpDto;
-
     // Check if user already exists
     const existingUser = await this.userModel.findOne({ email });
+    // return { user: existingUser };
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');
     }
@@ -40,16 +40,6 @@ export class AuthService {
         password: hashedPassword,
         userType,
       });
-
-      // Generate JWT token
-      const payload = {
-        id: user._id,
-        email: user.email,
-        userType: user.userType,
-      };
-      const token = this.jwtService.sign(payload);
-
-      // Return user without password
       const userResponse = {
         id: user._id,
         firstName: user.firstName,
@@ -58,8 +48,10 @@ export class AuthService {
         userType: user.userType,
       };
 
-      return { token, user: userResponse };
+      return { user: userResponse };
     } catch (error) {
+      console.log('Error during user creation:', error);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000) {
         throw new ConflictException('User with this email already exists');
       }
