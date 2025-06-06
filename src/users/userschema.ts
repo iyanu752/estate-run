@@ -25,8 +25,14 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ required: true, enum: ['user', 'business_owner', 'admin'] })
+  @Prop({ required: true, enum: ['user', 'business_owner', 'rider', 'admin'] })
   userType: string;
+
+  @Prop({ required: true })
+  supermarket: string;
+
+  @Prop({ required: true, enum: ['open', 'closed'] })
+  status: string;
 
   @Prop()
   phone: number;

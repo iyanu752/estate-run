@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './cart.schema';
 import { Model, Types } from 'mongoose';
-import { Product } from 'src/products/product.schema';
+import { Product } from 'src/products/productschema';
 
 @Injectable()
 export class CartService {
@@ -15,18 +15,17 @@ export class CartService {
     private cartModel: Model<Cart>,
   ) {}
 
-  async getCartByUserId(userId: string): Promise<{ cart: any }> {
+  async getCartByUserId(userId: string): Promise<Cart> {
     try {
-      const cartItem = await this.cartModel
+      const cart = await this.cartModel
         .findOne({ userId })
-        .populate('products.productId', 'name price image')
-        .exec();
-      if (!cartItem) {
-        throw new NotFoundException(' Cart not found for this user ');
+        .populate('items.productId');
+      if (!cart) {
+        throw new NotFoundException('Cart not found for this user');
       }
-      return { cart: cartItem };
-    } catch (error: any) {
-      throw new InternalServerErrorException('Failed to retrieve cart', error);
+      return cart;
+    } catch (error) {
+      throw new InternalServerErrorException('failed to get cart:', error);
     }
   }
 
