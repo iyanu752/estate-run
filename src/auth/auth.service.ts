@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
-import { User } from '../users/user.schema';
+import { User } from '../users/userschema';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { LogInDto, SignUpDto } from './dto/auth.dto';

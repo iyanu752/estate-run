@@ -9,6 +9,9 @@ import { DATABASE_URI } from './common/config';
 import { ProfileModule } from './profile/profile.module';
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
+import { OrdersModule } from './orders/orders.module';
+import { SupermarketModule } from './supermarket/supermarket.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -22,6 +25,9 @@ import { CartModule } from './cart/cart.module';
     ProfileModule,
     ProductsModule,
     CartModule,
+    OrdersModule,
+    SupermarketModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
