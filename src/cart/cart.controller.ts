@@ -1,12 +1,13 @@
 import { Controller, Get, Post, Put, Delete, Param } from '@nestjs/common';
 import { CartService } from './cart.service';
+import { Cart } from './cart.schema';
 
 @Controller('cart')
 export class CartController {
   constructor(private cartService: CartService) {}
 
   @Get('/:id')
-  async getCart(@Param('id') userId: string): Promise<{ cart: any }> {
+  async getCart(@Param('id') userId: string): Promise<Cart> {
     return await this.cartService.getCartByUserId(userId);
   }
 

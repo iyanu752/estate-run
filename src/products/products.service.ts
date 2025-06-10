@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Product } from 'src/products/product.schema';
+import { Product } from 'src/products/productschema';
 import { CreateProductDto } from './dto/product.dto';
 
 @Injectable()
