@@ -21,7 +21,19 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ user: any }> {
-    const { firstName, lastName, email, password, userType } = signUpDto;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      address,
+      estate,
+      userType,
+      businessName,
+      businessDescription,
+      businessPhoneNumber,
+    } = signUpDto;
     // Check if user already exists
     const existingUser = await this.userModel.findOne({ email });
     // return { user: existingUser };
@@ -38,14 +50,26 @@ export class AuthService {
         lastName,
         email,
         password: hashedPassword,
+        phone,
+        address,
+        estate,
         userType,
+        businessName,
+        businessDescription,
+        businessPhoneNumber,
       });
       const userResponse = {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
+        estate: user.estate,
         userType: user.userType,
+        businessName: user.businessName,
+        businessDescription: user.businessDescription,
+        businessPhoneNumber: user.businessPhoneNumber,
       };
 
       return { user: userResponse };
@@ -60,7 +84,7 @@ export class AuthService {
   }
 
   async logIn(logInDto: LogInDto): Promise<{ token: string; user: any }> {
-    const { email, password } = logInDto;
+    const { email, password, userType } = logInDto;
 
     if (!email || !password) {
       throw new BadRequestException('Email and password are required');
@@ -74,6 +98,12 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (user.userType !== userType) {
+      throw new UnauthorizedException(
+        `This account is not registered as a ${userType}`,
+      );
     }
 
     // Generate JWT token
@@ -94,5 +124,9 @@ export class AuthService {
     };
 
     return { token, user: userResponse };
+  }
+
+  logoutUser(): Promise<{ message: string }> {
+    return Promise.resolve({ message: 'Logout successful' });
   }
 }

@@ -10,6 +10,15 @@ export class User {
   @Prop({ required: true, trim: true })
   lastName: string;
 
+  @Prop({ required: false, trim: true })
+  businessName: string;
+
+  @Prop({ required: false, trim: true })
+  businessPhoneNumber: string;
+
+  @Prop({ required: false, trim: true })
+  businessDescription: string;
+
   @Prop({
     required: true,
     unique: true,
@@ -25,13 +34,13 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ required: true, enum: ['user', 'business_owner', 'rider', 'admin'] })
+  @Prop({ required: true, enum: ['user', 'vendor', 'rider', 'admin'] })
   userType: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   supermarket: string;
 
-  @Prop({ required: true, enum: ['open', 'closed'] })
+  @Prop({ required: false, enum: ['open', 'closed'] })
   status: string;
 
   @Prop()

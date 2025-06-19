@@ -12,6 +12,7 @@ import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { SupermarketModule } from './supermarket/supermarket.module';
 import { CategoryModule } from './category/category.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { CategoryModule } from './category/category.module';
     OrdersModule,
     SupermarketModule,
     CategoryModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

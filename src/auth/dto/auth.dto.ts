@@ -32,15 +32,27 @@ export class SignUpDto {
 
   @IsNotEmpty({ message: 'Adress is required' })
   @IsString({ message: 'Adress must be a string' })
-  adress: string;
+  address: string;
 
   @IsOptional()
   @IsString({ message: 'Estate must be a string' })
   estate?: string;
 
+  @IsNotEmpty({ message: 'Business name is required' })
+  @IsString({ message: 'Business name must be a string' })
+  businessName?: string;
+
+  @IsOptional()
+  @IsNumber({}, { message: 'Business phone number must be a number ' })
+  businessPhoneNumber?: number;
+
+  @IsOptional()
+  @IsString({ message: 'Business description must be a string' })
+  businessDescription?: string;
+
   @IsNotEmpty({ message: 'User type is required' })
-  @IsEnum(['admin', 'user', 'business_owner'], {
-    message: 'User type must be admin, user, or manager',
+  @IsEnum(['admin', 'user', 'vendor', 'rider'], {
+    message: 'User type must be admin, user, vencor or rider',
   })
   userType: string;
 }
@@ -53,4 +65,8 @@ export class LogInDto {
   @IsNotEmpty({ message: 'Password is required' })
   @IsString({ message: 'Password must be a string' })
   password: string;
+
+  @IsNotEmpty({ message: 'UserType is required' })
+  @IsString({ message: 'Usertype must be a string' })
+  userType: string;
 }

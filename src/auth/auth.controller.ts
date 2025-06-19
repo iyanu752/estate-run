@@ -17,4 +17,9 @@ export class AuthController {
   ): Promise<{ token: string; user: any }> {
     return await this.authService.logIn(logInDto);
   }
+
+  @Post('/logout')
+  logout(): Promise<{ message: string }> {
+    return this.authService.logoutUser();
+  }
 }

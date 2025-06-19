@@ -29,7 +29,7 @@ export class SupermarketService {
         throw new NotFoundException('Owner not found');
       }
 
-      if (owner.userType !== 'business_owner') {
+      if (owner.userType !== 'vendor') {
         throw new BadRequestException(
           'Only business owners can create supermarkets',
         );
