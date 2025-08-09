@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './cart.schema';
 import { Model, Types } from 'mongoose';
 import { Product } from 'src/products/productschema';
+import { AddToCartDato } from './dto/cart.dto';
 
 @Injectable()
 export class CartService {
@@ -30,11 +31,11 @@ export class CartService {
   }
 
   async addToCart(
-    userId: string,
-    productId: string,
-    quantity: number,
+    req: AddToCartDato,
   ): Promise<{ cart: Cart; message: string }> {
     try {
+      const { userId, productId, supermarket, quantity } = req;
+
       let cartItem = await this.cartModel.findOne({ userId });
       if (!cartItem) {
         cartItem = new this.cartModel({ userId, items: [] });
@@ -50,12 +51,14 @@ export class CartService {
         cartItem.items.push({
           productId: new Types.ObjectId(productId),
           quantity,
+          Supermarket: new Types.ObjectId(supermarket),
         });
       }
 
       cartItem = await cartItem.save();
       return { cart: cartItem, message: 'Product added to cart successfully' };
     } catch (error) {
+      console.log('error', error);
       throw new InternalServerErrorException('Failed to add to cart: ', error);
     }
   }

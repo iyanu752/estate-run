@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
 
 @Schema({
   timestamps: true,
@@ -13,20 +14,29 @@ export class Product {
   @Prop({ required: false })
   description: string;
 
-  @Prop({ required: false })
+  @Prop({ required: true })
   price: number;
 
-  @Prop({ required: true })
-  location: string;
+  @Prop({ required: false })
+  unit: string;
 
   @Prop({ default: 0 })
   stock: number;
 
-  @Prop()
-  image: string;
+  @Prop({ required: false })
+  quantity: number;
 
   @Prop({ required: false })
-  method: string;
+  image: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'Supermarket' })
+  supermarket: string;
+
+  @Prop({ required: false })
+  isAvailable: boolean;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Supermarket' })
+  ownerId: string;
 }
 
 export const Products = SchemaFactory.createForClass(Product);

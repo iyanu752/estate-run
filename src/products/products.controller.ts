@@ -6,11 +6,11 @@ import {
   Delete,
   Param,
   Body,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/product.dto';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
+// import { JwtAuthGuard } from 'src/auth/auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -24,16 +24,7 @@ export class ProductsController {
     };
   }
 
-  @Get('/:id')
-  async getProductById(
-    @Param('id') productId: string,
-  ): Promise<{ product: any }> {
-    const product = await this.productService.getProductsById(productId);
-    return {
-      product: product,
-    };
-  }
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post('/')
   async createProduct(
     @Body() createProductDto: CreateProductDto,
@@ -43,6 +34,31 @@ export class ProductsController {
       product: product,
       message: 'Product created successfully',
     };
+  }
+
+  @Get('/:id')
+  async getProductById(
+    @Param('id') productId: string,
+  ): Promise<{ product: any }> {
+    const product = await this.productService.getProductsById(productId);
+    return {
+      product: product,
+    };
+  }
+
+  @Get('vendor/:id')
+  async getProductByVendor(
+    @Param('id') productId: string,
+  ): Promise<{ product: any }> {
+    const product = await this.productService.getProductsByVendor(productId);
+    return {
+      product: product,
+    };
+  }
+
+  @Get('supermarket/:id')
+  async getProductsBySupermarket(@Param('id') supermarketId: string) {
+    return this.productService.getProductsBySupermarket(supermarketId);
   }
 
   @Put('/:id')

@@ -13,6 +13,10 @@ import { OrdersModule } from './orders/orders.module';
 import { SupermarketModule } from './supermarket/supermarket.module';
 import { CategoryModule } from './category/category.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PaymentModule } from './payment/payment.module';
+import { VerificationModule } from './verification/verification.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -21,6 +25,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
       envFilePath: '.env',
     }),
     MongooseModule.forRoot(DATABASE_URI as string),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     ProfileModule,
@@ -30,6 +35,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     SupermarketModule,
     CategoryModule,
     DashboardModule,
+    PaymentModule,
+    VerificationModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

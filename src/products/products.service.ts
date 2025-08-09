@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, FilterQuery } from 'mongoose';
 
 import { Product } from 'src/products/productschema';
 import { CreateProductDto } from './dto/product.dto';
@@ -16,7 +16,8 @@ export class ProductsService {
     private productModel: Model<Product>,
   ) {}
 
-  async getProducts(): Promise<Product[]> {
+  // Get all products (for admin/vendor use)
+  async getAllProducts(): Promise<Product[]> {
     try {
       const products = await this.productModel.find().exec();
       if (!products || products.length === 0) {
@@ -31,11 +32,89 @@ export class ProductsService {
     }
   }
 
-  async getProductsById(productId: string): Promise<Product> {
+  async getProductsBySupermarket(ownerId: string) {
+    return this.productModel.find({
+      ownerId: ownerId,
+      isAvailable: true,
+    });
+  }
+
+  // Get only available products (for residents/customers)
+  async getAvailableProducts(): Promise<Product[]> {
     try {
-      const product = await this.productModel.findById(productId).exec();
+      const products = await this.productModel
+        .find({ isAvailable: true })
+        .exec();
+      if (!products || products.length === 0) {
+        throw new NotFoundException('No available products found');
+      }
+      return products;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to retrieve available products',
+        error,
+      );
+    }
+  }
+
+  // Get products with role-based filtering
+  async getProducts(userRole?: string): Promise<Product[]> {
+    try {
+      const query: FilterQuery<Product> = {};
+
+      // If user is a regular resident/customer, only show available products
+      if (userRole === 'user') {
+        query.isAvailable = true;
+      }
+      // Admin and vendors can see all products
+
+      const products = await this.productModel.find(query).exec();
+      if (!products || products.length === 0) {
+        throw new NotFoundException('No products found');
+      }
+      return products;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to retrieve products',
+        error,
+      );
+    }
+  }
+
+  async getProductsByVendor(ownerId: string): Promise<Product[]> {
+    try {
+      const products = await this.productModel.find({ ownerId }).exec();
+      if (!products || products.length === 0) {
+        throw new NotFoundException('No products found for this vendor');
+      }
+      return products;
+    } catch (error) {
+      console.error('Error retrieving products by vendor', error);
+      throw new InternalServerErrorException(
+        'Failed to retrieve vendor products',
+      );
+    }
+  }
+
+  async getProductsById(
+    productId: string,
+    userRole?: string,
+  ): Promise<Product> {
+    try {
+      const query: FilterQuery<Product> = { _id: productId };
+
+      // If user is a regular resident, only allow access to available products
+      if (userRole === 'user') {
+        query.isAvailable = true;
+      }
+
+      const product = await this.productModel.findOne(query).exec();
       if (!product) {
-        throw new NotFoundException(`product with id ${productId} not found`);
+        throw new NotFoundException(
+          userRole === 'user'
+            ? `Product not available or not found`
+            : `Product with id ${productId} not found`,
+        );
       }
       return product;
     } catch (error) {
@@ -53,32 +132,36 @@ export class ProductsService {
         category,
         description,
         price,
-        location,
+        isAvailable,
         stock,
+        quantity,
         image,
-        method,
+        unit,
+        ownerId,
       } = createProductDto;
+
+      // Check required fields
       if (
         !name ||
         !category ||
-        !description ||
-        !price ||
-        !location ||
-        !stock ||
-        !image ||
-        !method
+        price === undefined ||
+        isAvailable === undefined ||
+        !unit
       ) {
         throw new NotFoundException('All fields are required');
       }
+
       const newProduct = new this.productModel({
         name,
         category,
         description,
         price,
-        location,
+        quantity,
+        isAvailable,
         stock,
         image,
-        method,
+        unit,
+        ownerId,
       });
       return await newProduct.save();
     } catch (error) {
@@ -88,7 +171,7 @@ export class ProductsService {
 
   async updateProduct(
     productId: string,
-    updateProductDto: CreateProductDto,
+    updateProductDto: Partial<CreateProductDto>,
   ): Promise<Product> {
     try {
       const updatedProduct = await this.productModel
