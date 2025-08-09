@@ -8,15 +8,18 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/userschema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { LogInDto, SignUpDto } from './dto/auth.dto';
-
+import { SuperMarket } from 'src/supermarket/supermarketschema';
+import { SuperMarketDocument } from 'src/supermarket/supermarketschema';
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
+    @InjectModel(SuperMarket.name)
+    private supermarketModel: Model<SuperMarketDocument>,
     private jwtService: JwtService,
   ) {}
 
@@ -34,14 +37,11 @@ export class AuthService {
       businessDescription,
       businessPhoneNumber,
     } = signUpDto;
-    // Check if user already exists
     const existingUser = await this.userModel.findOne({ email });
-    // return { user: existingUser };
     if (existingUser) {
       throw new BadRequestException('User with this email already exists');
     }
 
-    // Hash password with higher salt rounds for better security
     const hashedPassword = await bcrypt.hash(password, 12);
 
     try {
@@ -71,6 +71,19 @@ export class AuthService {
         businessDescription: user.businessDescription,
         businessPhoneNumber: user.businessPhoneNumber,
       };
+      if (user.userType === 'vendor') {
+        const supermarket = await this.supermarketModel.create({
+          name: user.businessName,
+          address: user.address || '',
+          description: user.businessDescription || '',
+          status: 'open',
+          approved: false,
+          ownerId: user._id,
+        });
+        console.log('supermarket created:', supermarket);
+        user.supermarket = supermarket._id as mongoose.Schema.Types.ObjectId;
+        await user.save();
+      }
 
       return { user: userResponse };
     } catch (error) {
@@ -106,6 +119,11 @@ export class AuthService {
       );
     }
 
+    await this.userModel.findByIdAndUpdate(user._id, {
+      isLoggedIn: true,
+      status: 'active',
+    });
+
     // Generate JWT token
     const payload = {
       id: user._id,
@@ -120,13 +138,24 @@ export class AuthService {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      status: 'active',
       userType: user.userType,
     };
 
     return { token, user: userResponse };
   }
+  // auth.service.ts
+  async logoutUser(userId: string): Promise<{ message: string }> {
+    const user = await this.userModel.findById(userId);
 
-  logoutUser(): Promise<{ message: string }> {
-    return Promise.resolve({ message: 'Logout successful' });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.isLoggedIn = false;
+    user.status = 'inactive';
+
+    await user.save();
+
+    return { message: 'Logout successful' };
   }
 }

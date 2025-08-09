@@ -1,13 +1,25 @@
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { SupermarketService } from './supermarket.service';
-import { CreateSupermarketDto } from './dto/supermarket.dto';
+import {
+  CreateSupermarketDto,
+  UpdateSupermarketDto,
+} from './dto/supermarket.dto';
 import { SuperMarket } from './supermarketschema';
 
 @Controller('supermarket')
 export class SupermarketController {
   constructor(private supermarketService: SupermarketService) {}
 
-  @Post()
+  @Post('/')
   async createSupermarket(
     @Body() createSupermarketDto: CreateSupermarketDto,
   ): Promise<SuperMarket> {
@@ -22,15 +34,23 @@ export class SupermarketController {
   }
 
   @Get(':id')
-  async getSupermarketById(id: string): Promise<SuperMarket> {
+  async getSupermarketById(@Param('id') id: string): Promise<SuperMarket> {
     return await this.supermarketService.getSupermarketById(id);
+  }
+
+  @Patch(':id/holiday-mode')
+  async toggleHolidayMode(
+    @Param('id') id: string,
+    @Body() body: { enabled: boolean },
+  ) {
+    return await this.supermarketService.updateHolidayMode(id, body.enabled);
   }
 
   @Put(':id')
   async updateSupermarket(
-    id: string,
-    updateSupermarketDto: CreateSupermarketDto,
-  ): Promise<SuperMarket> {
+    @Param('id') id: string,
+    @Body() updateSupermarketDto: UpdateSupermarketDto,
+  ): Promise<{ supermarketItem: any; message: string }> {
     return await this.supermarketService.updateSupermarket(
       id,
       updateSupermarketDto,
@@ -38,7 +58,7 @@ export class SupermarketController {
   }
 
   @Delete(':id')
-  async deleteSupermarket(id: string): Promise<void> {
+  async deleteSupermarket(@Param('id') id: string): Promise<void> {
     return await this.supermarketService.deleteSupermarket(id);
   }
 }

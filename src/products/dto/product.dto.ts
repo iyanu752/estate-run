@@ -1,9 +1,19 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsBoolean,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty({ message: 'Product name is required' })
   @IsString({ message: 'Product name must be a string' })
   name: string;
+
+  @IsNotEmpty({ message: 'Owner Id can not be empty' })
+  @IsString({ message: 'Owner Id must be a string' })
+  ownerId: string;
 
   @IsNotEmpty({
     message: 'Product category is required',
@@ -21,17 +31,19 @@ export class CreateProductDto {
 
   @IsNotEmpty({ message: 'Product location is required' })
   @IsString({ message: 'Product location must be a string' })
-  location: string;
+  unit: string;
 
-  @IsNotEmpty({ message: 'Product stock is required' })
+  @IsOptional({})
   @IsNumber({}, { message: 'Product stock must be a number' })
   stock: number;
 
-  @IsNotEmpty({ message: 'Product image is required' })
+  @IsOptional()
   @IsString({ message: 'Product image must be a string' })
   image: string;
 
-  @IsNotEmpty({ message: 'product method is required' })
-  @IsString({ message: 'Product methiod must be a string' })
-  method: string;
+  @IsOptional()
+  quantity: number;
+
+  @IsBoolean({ message: 'Product isSvailable must be a boolean' })
+  isAvailable: boolean;
 }

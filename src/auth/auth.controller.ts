@@ -19,7 +19,7 @@ export class AuthController {
   }
 
   @Post('/logout')
-  logout(): Promise<{ message: string }> {
-    return this.authService.logoutUser();
+  async logout(@Body('userId') userId: string): Promise<{ message: string }> {
+    return await this.authService.logoutUser(userId);
   }
 }
