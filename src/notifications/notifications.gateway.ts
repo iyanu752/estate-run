@@ -23,13 +23,30 @@ export class NotificationsGateway
 
   handleConnection(client: Socket) {
     const userId = client.handshake.query.userId as string;
-    if (userId) this.connectedClients.set(client.id, userId);
-    console.log(`User connected: ${userId}`);
+    if (!userId) {
+      console.log('Connection rejected: no userId');
+      client.disconnect();
+      return;
+    }
+
+    for (const [socketId, id] of this.connectedClients) {
+      if (id === userId) {
+        this.connectedClients.delete(socketId);
+        this.server.sockets.sockets.get(socketId)?.disconnect(true);
+      }
+    }
+
+    this.connectedClients.set(client.id, userId);
+    console.log(
+      `User connected: ${userId}. Total: ${this.connectedClients.size}`,
+    );
   }
 
   handleDisconnect(client: Socket) {
     this.connectedClients.delete(client.id);
-    console.log(`User disconnected: ${client.id}`);
+    console.log(
+      `User disconnected: ${client.id}. Total: ${this.connectedClients.size}`,
+    );
   }
 
   sendOrderNotificationToVendor(vendorId: string, payload: any) {
