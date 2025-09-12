@@ -20,6 +20,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { UploadController } from './upload/upload.controller';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { CodesModule } from './codes/codes.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     VerificationModule,
     NotificationsModule,
     CloudinaryModule,
+    CodesModule,
   ],
   controllers: [AppController, UploadController],
   providers: [AppService, CloudinaryService],
