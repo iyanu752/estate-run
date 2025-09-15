@@ -15,6 +15,9 @@ export class CreateNewsDto {
   @IsOptional()
   @IsString({ message: 'comment must be a string' })
   comment: string;
+
+  @IsOptional()
+  image: string;
 }
 
 export class UpdateNewsDto {
@@ -29,4 +32,7 @@ export class UpdateNewsDto {
   @IsOptional()
   @IsString({ message: 'comment must be a string' })
   comment: string;
+
+  @IsOptional()
+  image: string;
 }

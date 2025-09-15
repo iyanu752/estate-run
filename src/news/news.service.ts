@@ -20,6 +20,7 @@ export class NewsService {
     userId: string,
     headline: string,
     message: string,
+    image?: string,
   ): Promise<News> {
     try {
       const user = await this.userModel.findById(userId).exec();
@@ -27,6 +28,7 @@ export class NewsService {
 
       const news = new this.newsModel({
         user: userId,
+        image,
         headline,
         message,
       });
@@ -90,6 +92,7 @@ export class NewsService {
         _id: news._id,
         headline: news.headline,
         message: news.message,
+        image: news.image,
         isLiked: news.isLiked,
         createdAt: news.createdAt,
         user: news.user,
