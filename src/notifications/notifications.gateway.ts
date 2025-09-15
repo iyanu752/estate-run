@@ -59,4 +59,12 @@ export class NotificationsGateway
       }
     }
   }
+
+  sendEstateNewsNotification(userId: string, payload: any) {
+    for (const [socketId, connectedUserId] of this.connectedClients.entries()) {
+      if (connectedUserId === userId) {
+        this.server.to(socketId).emit('estateNewsNotification', payload);
+      }
+    }
+  }
 }

@@ -21,6 +21,7 @@ import { UploadController } from './upload/upload.controller';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CodesModule } from './codes/codes.module';
+import { NewsModule } from './news/news.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CodesModule } from './codes/codes.module';
     NotificationsModule,
     CloudinaryModule,
     CodesModule,
+    NewsModule,
   ],
   controllers: [AppController, UploadController],
   providers: [AppService, CloudinaryService],

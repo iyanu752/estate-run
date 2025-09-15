@@ -112,7 +112,8 @@ export class CodesService {
       if (codeDoc.verificationCode !== verificationCode) {
         throw new UnauthorizedException('Invalid verification code');
       }
-
+      codeDoc.codeStatus = 'Used';
+      await codeDoc.save();
       return { verified: true, message: 'Verification successful' };
     } catch (error) {
       if (

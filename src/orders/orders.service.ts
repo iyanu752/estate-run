@@ -74,7 +74,6 @@ export class OrdersService {
         throw error;
       }
 
-      // Handle mongoose validation errors
       if (error.name === 'ValidationError') {
         const validationErrors = Object.values(error.errors).map(
           (err: any) => err.message,

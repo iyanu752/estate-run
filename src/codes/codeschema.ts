@@ -27,6 +27,9 @@ export class Code {
 
   @Prop({ required: false })
   verificationCode: number;
+
+  @Prop({ type: String, enum: ['Active', 'Used'], default: 'Active' })
+  codeStatus: string;
 }
 
 export const Codes = SchemaFactory.createForClass(Code);
