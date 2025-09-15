@@ -52,7 +52,6 @@ export class Orders extends Document {
   @Prop({ type: Date })
   deliveredAt: Date;
 
-  // Paystack integration fields
   @Prop({ type: String, unique: true })
   paymentReference: string;
 
@@ -64,7 +63,7 @@ export class Orders extends Document {
   paymentStatus: string;
 
   @Prop({ type: String })
-  orderId: string; // Custom order ID (ORD-XXXXX)
+  orderId: string;
 
   @Prop({ type: Date })
   paidAt: Date;
