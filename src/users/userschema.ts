@@ -41,7 +41,10 @@ export class User {
   @Prop({ required: true, select: false })
   password: string;
 
-  @Prop({ required: true, enum: ['user', 'vendor', 'rider', 'admin'] })
+  @Prop({
+    required: true,
+    enum: ['user', 'vendor', 'rider', 'admin', 'management'],
+  })
   userType: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Supermarket' })

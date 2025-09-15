@@ -124,7 +124,6 @@ export class AuthService {
       status: 'active',
     });
 
-    // Generate JWT token
     const payload = {
       id: user._id,
       email: user.email,
@@ -132,7 +131,6 @@ export class AuthService {
     };
     const token = this.jwtService.sign(payload);
 
-    // Return user without password
     const userResponse = {
       id: user._id,
       firstName: user.firstName,

@@ -23,6 +23,9 @@ export class News {
   @Prop({ required: false, trim: true })
   message: string;
 
+  @Prop({ required: false })
+  image: string;
+
   @Prop({ default: false })
   isLiked: boolean;
 
