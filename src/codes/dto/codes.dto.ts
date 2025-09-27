@@ -7,6 +7,10 @@ import {
 } from 'class-validator';
 
 export class CreateCodeDto {
+  @IsNotEmpty({ message: 'userId is required' })
+  @IsString({ message: 'UserId must be a string' })
+  userId: string;
+
   @IsNotEmpty({ message: 'visitor name is required' })
   @IsString({ message: 'visitor name must be a string' })
   visitorName: string;
