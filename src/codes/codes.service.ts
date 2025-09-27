@@ -44,6 +44,7 @@ export class CodesService {
         to,
         specialInstructions,
         verificationCode,
+        codeStatus: 'Active',
       });
 
       return await newCode.save();
@@ -65,7 +66,7 @@ export class CodesService {
 
   async getCodeById(id: string): Promise<Code> {
     try {
-      const code = await this.codeModel.findById(id).exec();
+      const code = await this.codeModel.findById(id).populate('userId').exec();
       if (!code) throw new NotFoundException('Code not found');
       return code;
     } catch (error) {

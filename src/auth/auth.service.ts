@@ -142,7 +142,6 @@ export class AuthService {
 
     return { token, user: userResponse };
   }
-  // auth.service.ts
   async logoutUser(userId: string): Promise<{ message: string }> {
     const user = await this.userModel.findById(userId);
 
