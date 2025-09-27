@@ -9,17 +9,18 @@ import {
 } from '@nestjs/common';
 import { CodesService } from './codes.service';
 import { CreateCodeDto } from './dto/codes.dto';
+import { Code } from './codeschema';
 
 @Controller('codes')
 export class CodesController {
   constructor(private readonly codesService: CodesService) {}
 
-  @Post()
+  @Post('/createCode')
   async createCode(@Body() createCodeDto: CreateCodeDto) {
     return this.codesService.createVerificationCode(createCodeDto);
   }
 
-  @Get()
+  @Get('/getCode')
   async getAllCodes() {
     return this.codesService.getAllCodes();
   }
@@ -29,9 +30,9 @@ export class CodesController {
     return this.codesService.getCodeById(id);
   }
 
-  @Get('/user/:userId')
-  async getCodeByUserId(@Param('userId') userId: string) {
-    return await this.codesService.getCodeById(userId);
+  @Get('user/:userId')
+  async getCodesByUser(@Param('userId') userId: string): Promise<Code[]> {
+    return this.codesService.getCodesByUserId(userId);
   }
 
   @Put(':id')

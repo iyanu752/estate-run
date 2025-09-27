@@ -1,54 +1,64 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { Code } from './codeschema';
 import { CreateCodeDto } from './dto/codes.dto';
-
+import { Counter } from './counterschema';
+import { Types } from 'mongoose';
 @Injectable()
 export class CodesService {
   constructor(
     @InjectModel(Code.name)
     private readonly codeModel: Model<Code>,
+    @InjectModel(Counter.name)
+    private readonly counterModel: Model<Counter>,
   ) {}
+
+  async getNextSequence(name: string): Promise<number> {
+    const counter = await this.counterModel.findOneAndUpdate(
+      { name },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true },
+    );
+    return counter.seq;
+  }
 
   async createVerificationCode(createCodeDto: CreateCodeDto): Promise<Code> {
     try {
-      const {
-        visitorName,
-        visitorPhone,
-        purposeOfVisit,
-        date,
-        from,
-        to,
-        specialInstructions,
-      } = createCodeDto;
-
-      if (!(visitorName && date && from && to)) {
-        throw new NotFoundException('Fill in required fields');
+      if (
+        !(
+          createCodeDto.visitorName &&
+          createCodeDto.date &&
+          createCodeDto.from &&
+          createCodeDto.to &&
+          createCodeDto.userId
+        )
+      ) {
+        throw new InternalServerErrorException('Fill in required fields');
       }
 
       const verificationCode = Math.floor(1000 + Math.random() * 9000);
+      const sequence = await this.getNextSequence('code_seq');
+      const formattedSeq = String(sequence).padStart(3, '0');
+      const year = new Date().getFullYear();
+      const id = `VIS-${year}-${formattedSeq}`;
 
       const newCode = new this.codeModel({
-        visitorName,
-        visitorPhone,
-        purposeOfVisit,
-        date,
-        from,
-        to,
-        specialInstructions,
+        ...createCodeDto,
+        id,
         verificationCode,
-        codeStatus: 'Active',
       });
 
       return await newCode.save();
     } catch (error) {
+      console.error('failed to create verification code', error);
       throw new InternalServerErrorException(
         'Failed to create verification code',
         error,
@@ -70,10 +80,31 @@ export class CodesService {
       if (!code) throw new NotFoundException('Code not found');
       return code;
     } catch (error) {
+      console.error('unable to get verification codes', error);
       throw new InternalServerErrorException('Failed to fetch code', error);
     }
   }
 
+  async getCodesByUserId(userId: string): Promise<Code[]> {
+    try {
+      if (!isValidObjectId(userId)) {
+        throw new BadRequestException('Invalid userId format');
+      }
+
+      const codes = await this.codeModel
+        .find({ userId: new Types.ObjectId(userId) })
+        .populate('userId')
+        .exec();
+
+      if (!codes || codes.length === 0) {
+        throw new NotFoundException('No codes found for this user');
+      }
+
+      return codes;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to fetch codes', error);
+    }
+  }
   async updateCode(
     id: string,
     updateData: Partial<CreateCodeDto>,

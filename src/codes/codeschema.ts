@@ -6,6 +6,9 @@ import mongoose from 'mongoose';
   timestamps: true,
 })
 export class Code {
+  @Prop({ required: true, unique: true })
+  id: string;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
@@ -19,12 +22,12 @@ export class Code {
   purposeOfVisit: string;
 
   @Prop({ required: true })
-  date: Date;
+  date: string;
 
   @Prop({ required: true })
-  from: number;
+  from: string;
   @Prop({ required: true })
-  to: number;
+  to: string;
 
   @Prop({ required: false })
   specialInstructions: string;
