@@ -29,6 +29,11 @@ export class CodesController {
     return this.codesService.getCodeById(id);
   }
 
+  @Get('/user/:userId')
+  async getCodeByUserId(@Param('userId') userId: string) {
+    return await this.codesService.getCodeById(userId);
+  }
+
   @Put(':id')
   async updateCode(
     @Param('id') id: string,

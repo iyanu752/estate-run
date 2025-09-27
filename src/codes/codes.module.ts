@@ -3,8 +3,14 @@ import { CodesController } from './codes.controller';
 import { CodesService } from './codes.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Codes } from './codeschema';
+import { User, UserSchema } from 'src/users/userschema';
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'Code', schema: Codes }])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'Code', schema: Codes },
+      { name: User.name, schema: UserSchema },
+    ]),
+  ],
   controllers: [CodesController],
   providers: [CodesService],
 })
